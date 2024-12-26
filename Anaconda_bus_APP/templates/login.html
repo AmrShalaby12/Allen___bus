@@ -1,0 +1,46 @@
+{% extends "orders/base.html" %}
+
+{% block title %}
+ 
+{% endblock %}
+
+{% block body %}
+<div class="body">
+<h1 style="text-align: center; color:#9b4391">Allen Travel</h1>
+{% if message %}
+    <div>
+        {{ message }}
+    </div>
+{% endif %}
+
+<style>
+  body{
+background-color: #212121;
+  }
+  .body{
+    background-color: aliceblue;
+    width: 100%;
+    padding: 30px;
+  }
+</style>
+<!-- "C:\Users\REDACO\Videos\Screen Recorder\20240916210913.mp4" -->
+<form action="{% url 'login' %}" method="post">
+	 {% csrf_token %}
+<div class="form-group">
+    <label >Username</label>
+    <input type="text" class="form-control" name="username" placeholder="Username">
+  </div>
+
+ 
+  <div class="form-group">
+    <label >Password</label>
+    <input type="password" class="form-control" placeholder="Password" name="password" type="password">
+  </div>
+
+  <button type="submit" class="btn btn-primary" value="Login" style="background-color:#9b4391 ;border:none;">Submit</button>
+          
+                    <a class="nav-link" href="{% url 'signup' %}">not have an account?</a>
+               
+</form>
+</div>
+{% endblock %}

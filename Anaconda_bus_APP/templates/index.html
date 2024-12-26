@@ -1,0 +1,298 @@
+
+    {% include 'navigation.html' %}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بحث عن رحلة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+</head>
+<body>
+
+    <div class="container my-4 search-section">
+        <form method="GET" action="{% url 'index' %}" class="row g-3 p-4 shadow-sm rounded bg-light">
+            <h3 class="text-center mb-4 ">البحث عن الرحلات</h3>
+            <div class="col-md-4">
+                <label for="university" class="form-label">الجامعة</label>
+                <select name="category" id="university" class="form-select">
+                    <option value="">كل الجامعات</option>
+                    {% for university in all_universities %}
+                        <option value="{{ university.id }}" {% if selected_category == university.id|stringformat:"s" %}selected{% endif %}>
+                            {{ university.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="date" class="form-label">تاريخ الرحلة</label>
+                <input 
+                    type="date" 
+                    name="date" 
+                    id="date" 
+                    class="form-control" 
+                    value="{{ selected_date }}" 
+                    min="">
+            </div>
+            
+            <script>
+                // JavaScript to set today's date as the minimum
+                const dateInput = document.getElementById('date');
+                const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+                dateInput.min = today;
+            </script>
+            
+            <div class="col-md-4">
+                <label for="start_time" class="form-label">وقت الوصول للواجهه</label>
+                <select name="start_time" id="start_time" class="form-select">
+                    <option value="">كل الأوقات</option>
+                    {% for time in all_start_times %}
+                        <option value="{{ time }}" {% if start_time == time %}selected{% endif %}>
+                            {{ time }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="trip_type" class="form-label">نوع الرحلة</label>
+                <select name="trip_type" id="trip_type" class="form-select">
+                    <option value="">كل الأنواع</option>
+                    {% for trip_type, display in all_trip_types %}
+                        <option value="{{ trip_type }}" {% if selected_trip_type == trip_type %}selected{% endif %}>
+                            {{ display }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="route" class="form-label">المحطة</label>
+                <select name="route" id="route" class="form-select">
+                    <option value="">كل المسارات</option>
+                    {% for route in all_routes %}
+                        <option value="{{ route }}" {% if selected_route == route %}selected{% endif %}>
+                            {{ route }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-12 text-center">
+                <button type="submit" class="btn btn-primary px-5">بحث</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="container my-4">
+        {% if schedules %}
+            <h4 class="text-center text-primary" style="    color: #9b4391 !important;
+    border: none !important;">الرحلات المتوفرة</h4>
+            <div class="row">
+                {% for schedule in schedules %}
+                    <div class="col-md-4">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title text-center"style="    color: #9b4391 !important;
+                                border: none !important;">{{ schedule.trip_name }}</h5>
+                                <p><strong>الطريق:</strong> {{ schedule.route }}</p>
+                                <p><strong>نوع الرحلة:</strong> {{ schedule.get_trip_type_display }}</p>
+                                <p><strong>التاريخ:</strong> {{ schedule.date }}</p>
+                                <p><strong>وقت الوصول للواجهه:</strong> {{ schedule.start_time }}</p>
+                                <p><strong>السائق:</strong> {{ schedule.bus.name }}</p>
+                                <p><strong>رقم السائق:</strong> {{ schedule.bus.driver_number }}</p>
+                                <p><strong>السعر:</strong> {{ schedule.round_trip_price }} جنيه</p>
+                                <p><strong>المقاعد المتاحة:</strong> {{ schedule.bus.available_seats }}</p>
+                                {% if schedule.bus.location_url %}
+                                <p>
+                                    <strong>موقع الباص:</strong>
+                                    <p>يتم تحديث الموقع كل 20 ثانيه</p>
+                                    <a href="{% url 'show_bus_location' schedule.bus.id %}" target="_blank" class="text-primary">عرض الموقع</a>
+                                </p>
+                            {% else %}
+                                <p>لا يوجد موقع متاح لهذه الحافلة.</p>
+                            {% endif %}
+                            
+                            
+                                <div class="d-grid">
+                                    <a href="{% url 'book_seat' schedule.id %}" class="btn btn-primary" style="    background-color: #9b4391 !important;
+    border: none !important;">حجز</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-center text-danger">لا توجد رحلات متوفرة بناءً على معايير البحث.</p>
+        {% endif %}
+    </div>
+<style>
+    .search-section {
+        background: url('/media/items/background.jpg') no-repeat center center;
+        background-size: cover; /* يجعل الصورة تغطي كامل الخلفية */
+        padding: 50px 20px; /* لإضافة مساحة داخلية حول المحتوى */
+        border-radius: 15px; /* لجعل الحواف ناعمة */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* تأثير الظل */
+    }
+
+button{
+    background-color: #9b4391 !important;
+    border: none !important;
+}
+/* تصميم الفوتر */
+.footer {
+    background-color: #575454; /* لون خلفية الفوتر */
+    color: #fff; /* لون النص */
+    padding: 40px 20px;
+    font-family: 'Arial', sans-serif;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* الشعار واسم الشركة */
+.footer-brand {
+    flex: 1;
+    min-width: 250px;
+}
+
+.footer-logo {
+    width: 200px;
+    margin-bottom: 10px;
+}
+
+.footer-brand h3 {
+    font-size: 20px;
+    margin: 10px 0;
+}
+
+.footer-brand p {
+    font-size: 14px;
+    color: #aaa;
+}
+
+/* روابط التنقل */
+.footer-links {
+    flex: 1;
+    min-width: 200px;
+}
+
+.footer-links h4 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.footer-links ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links ul li {
+    margin-bottom: 8px;
+}
+
+.footer-links ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.footer-links ul li a:hover {
+    color: #00bcd4;
+    text-decoration: underline;
+}
+
+/* وسائل التواصل الاجتماعي */
+.footer-social {
+    flex: 1;
+    min-width: 200px;
+}
+
+.footer-social h4 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.social-icons a {
+    color: #fff;
+    font-size: 20px;
+    margin-right: 10px;
+    text-decoration: none;
+}
+
+.social-icons a:hover {
+    color: #00bcd4;
+}
+
+/* حقوق الطبع والنشر */
+.footer-bottom {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #aaa;
+    border-top: 1px solid #444;
+    padding-top: 10px;
+}
+
+</style>
+<footer class="footer">
+    <div class="footer-container">
+        <!-- الشعار واسم الشركة -->
+        <div class="footer-brand">
+            <img src="/media/items/logo.png" alt="Company Logo" class="footer-logo">
+            <h3>Allen Travel</h3>
+            <p>دلوقتي Allen Travel بتقدملك توصيلة  بأسعار مميزة ده غير أننا بنقدملك خدمة على أعلى مستوى طول السفرية عشان توصل وأنت مرتاح..</p>
+        </div>
+
+        <!-- روابط التنقل -->
+        <div class="footer-links">
+            <h4>روابط سريعة</h4>
+            <ul>
+                <li><a href="https://www.facebook.com/AllenTravelco?mibextid=wwXIfr&rdid=QqKMxKRqIt0i5Wsn#">من نحن</a></li>
+                <li><a href="https://api.whatsapp.com/send?phone=%2B201000724672&context=ARB4SAQZ5mirV4UlbFZObfmcokoY9r3S6raok5f7m5jy1dzdVMu7J6xJQTqE54jxwEhoGDIlz-Z8D5Tz3uOilp0dAAY1ynS9loEP9NPy4VqCmArsbCeQnUTBBwkWu_nU2YaU6L2TK6dqI6BXdj3EP5BZpw&source=FB_Page&app=facebook&entry_point=page_cta&fbclid=IwZXh0bgNhZW0CMTAAAR2JZI_Is0q4KgP4lUCKW7webX0f8XHpCl29Wle_WNa6hRnCGtsfs8ehW7M_aem_nMBNDxT9aua48BjppIig3Q">تواصل معنا</a></li>
+            </ul>
+        </div>
+
+
+    </div>
+
+    <!-- حقوق الطبع والنشر -->
+    <div class="footer-bottom">
+        <p>© All rights reserved 2024 <a href="https://n0xus0.github.io/noxous_team/" style="text-decoration: none; color:#9b4391;">NOXUS_Team </a> ANACODNDA_BUS_PROJECT.</p>
+    </div>
+</footer>
+<script>
+    // تحديث واجهة المستخدم للرحلات
+function updateTrips() {
+    fetch('/get-trips/') // API للحصول على الرحلات
+        .then(response => response.json())
+        .then(data => {
+            // تحديث واجهة المستخدم بالبيانات الجديدة
+            const tripsContainer = document.querySelector('.trips-container');
+            tripsContainer.innerHTML = ''; // مسح البيانات القديمة
+
+            data.trips.forEach(trip => {
+                tripsContainer.innerHTML += `
+                    <div class="trip-item">
+                        <p><strong>الطريق:</strong> ${trip.route}</p>
+                        <p><strong>من:</strong> ${trip.start_destination.name}</p>
+                        <p><strong>إلى:</strong> ${trip.end_destination.name}</p>
+                        <p><strong>التاريخ:</strong> ${trip.date}</p>
+                        <p><strong>وقت الذهاب:</strong> ${trip.start_time}</p>
+                        <p><strong>الموقع الحالي:</strong> ${trip.latitude}, ${trip.longitude}</p>
+                    </div>`;
+            });
+        })
+        .catch(error => console.error('Error:', error));
+}
+    
+</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

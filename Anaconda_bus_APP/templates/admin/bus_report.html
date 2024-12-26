@@ -1,0 +1,69 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<div class="container">
+
+    <!-- الرحلات الحالية -->
+    <div class="table-responsive">
+        <h2>الرحلات الحالية</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>اسم الرحلة</th>
+                    <th>الطريق</th>
+                    <th>التاريخ</th>
+                    <th>الوقت</th>
+                    <th>الحافلة</th>
+                    <th>عدد المقاعد المتبقية</th>
+                    <th>نسبة الركاب</th>
+                    <th>حالة الحافلة</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trip in report_data %}
+                <tr>
+                    <td>{{ trip.trip_name }}</td>
+                    <td>{{ trip.route }}</td>
+                    <td>{{ trip.trip_date }}</td>
+                    <td>{{ trip.trip_time }}</td>
+                    <td>{{ trip.bus_name }}</td>
+                    <td>{{ trip.remaining_seats }}</td>
+                    <td>{{ trip.occupancy_rate }}</td>
+                    <td>{{ trip.bus_status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- الرحلات السابقة -->
+    <div class="table-responsive mt-5">
+        <h2>الرحلات السابقة</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>اسم الرحلة</th>
+                    <th>الطريق</th>
+                    <th>التاريخ</th>
+                    <th>الوقت</th>
+                    <th>الحافلة</th>
+                    <th>عدد الحجوزات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trip in past_trip_data %}
+                <tr>
+                    <td>{{ trip.trip_name }}</td>
+                    <td>{{ trip.route }}</td>
+                    <td>{{ trip.trip_date }}</td>
+                    <td>{{ trip.trip_time }}</td>
+                    <td>{{ trip.bus_name }}</td>
+                    <td>{{ trip.total_reservations }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <a href="{% url 'admin:index' %}" class="btn btn-primary mt-3">العودة إلى لوحة التحكم</a>
+</div>
+{% endblock %}

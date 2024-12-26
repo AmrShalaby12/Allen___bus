@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>user_data</title>
+</head>
+<body>
+    {% include 'navigation.html' %}
+
+    <div class="container mt-5">
+        <!-- عنوان الصفحة -->
+        <div class="row">
+            <div class="col text-center">
+                <h2 class="mb-4 text-primary fw-bold" style="color: #9b4391;" >حجوزاتي</h2>
+            </div>
+        </div>
+    
+        <!-- الحجوزات النشطة -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white text-center">
+                <h3 class="mb-0" >الحجوزات النشطة</h3>
+            </div>
+            <div class="card-body">
+                {% if active_bookings %}
+                    <p class="text-muted">لديك {{ active_bookings|length }} حجوزات نشطة.</p>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>تاريخ الحجز</th>
+                                    <th>الرحلة</th>
+                                    <th>نوع الرحلة</th>
+                                    <th>عدد المقاعد</th>
+                                    <th>رقم الكرسي المحجوز</th>
+                                    <th> مكان الركوب (الساعه)</th>
+                                    <th>رقم السائق</th>
+                                    <th>رقم النمر</th>
+                                    <th>نوع الباص</th>
+                                    <th>كود الحجز</th>
+                                    <th>موقع الباص</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in active_bookings %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ booking.booking_date }}</td>
+                                    <td>{{ booking.Trip }}</td>
+                                    <td>{{ booking.get_trip_type_display }}</td>
+                                    <td>{{ booking.seats_reserved.count }}</td>
+                                    <td>
+                                        {% for seat in booking.seats_reserved.all %}
+                                        <li>{{ seat.seat_number }}</li>
+                                        {% endfor %}
+                                    </td>
+
+                            <td>{{ booking.selected_route}}</td>
+                           
+                            <td>{{ booking.Trip.bus.driver_number }}</td>
+                            <td>{{ booking.Trip.bus.plate_number }}</td>
+                            <td>{{ booking.Trip.bus.bus_type}}</td>
+                            <td>{{ booking.serial_code}}</td>
+
+                            <td>
+                                {% if booking.Trip.bus.latitude and booking.Trip.bus.longitude %}
+                                    <a href="{% url 'show_bus_location' booking.Trip.bus.id %}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-map-marker-alt"></i> عرض الموقع
+                                    </a>
+                                {% else %}
+                                    <p class="text-muted">لا يوجد موقع</p>
+                                {% endif %}
+                            </td>
+                                    <td>
+                                        <a href="{% url 'cancel_booking' booking.id %}" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-times-circle"></i> إلغاء الحجز
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted">لا توجد حجوزات نشطة حالياً.</p>
+                {% endif %}
+            </div>
+        </div>
+    
+        <!-- الحجوزات المنتهية -->
+
+    </div>
+
+    <!-- روابط Bootstrap و Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+            <style>
+            .bg-primary {
+                --bs-bg-opacity: 1;
+                background-color: #9b4391 !important;
+            }
+            .text-primary {
+                --bs-text-opacity: 1;
+                color: #9b4391 !important;
+            }
+        </style>
+</body>
+</html>

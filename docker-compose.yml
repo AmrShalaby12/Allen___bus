@@ -1,0 +1,8 @@
+services:
+  web:
+    build: .
+    container_name: allen_bus
+    ports:
+      - 8000:8000
+    image: allen_bus
+

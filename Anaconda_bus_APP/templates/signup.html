@@ -1,0 +1,99 @@
+{% extends "orders/base.html" %}
+
+{% block title %}
+Signup
+{% endblock %}
+
+{% block body %}
+<br><br><div class="signup-container" >
+    <h1 class="signup-title">Create Your Account</h1>
+
+    <form method="POST" class="signup-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <p class="signup-note">If you are not a student, enter a random unique 6-digit university code.</p>
+        <button type="submit" class="signup-button">Sign up</button>
+    </form>
+
+    <p class="signup-login-link">Already have an account? <a href="{% url 'login' %}"><strong>Login here</strong></a>.</p>
+</div><br><br>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .signup-container {
+        background: #fff;
+        padding: 20px 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+        width: 100%;
+        display: inline-block !important;
+    }
+
+    .signup-title {
+        text-align: center;
+        font-size: 1.8em;
+        margin-bottom: 20px;
+        color: #2c3e50;
+    }
+
+    .signup-form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .signup-form p {
+        font-size: 0.9em;
+        margin-bottom: 10px;
+        color: #7f8c8d;
+    }
+
+    .signup-note {
+        font-size: 0.85em;
+        margin: 10px 0;
+        color: #34495e;
+    }
+
+    .signup-button {
+        background: #9b4391;
+        color: #fff;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        transition: background 0.3s ease;
+    }
+
+    .signup-button:hover {
+        background: #9b4391;
+    }
+
+    .signup-login-link {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 0.9em;
+        color: #34495e;
+    }
+
+    .signup-login-link a {
+        color: #3498db;
+        text-decoration: none;
+    }
+
+    .signup-login-link a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}

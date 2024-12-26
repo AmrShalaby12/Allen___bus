@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan QR Code</title>
+    {% if messages %}
+    <div>
+        {% for message in messages %}
+            <p style="color: green; font-weight: bold;">{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
+    <style>
+    
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        .main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        form {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        form input, form select, form button {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        form button {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        form button:hover {
+            background-color: #7b0f19;
+        }
+
+        .logout-btn {
+            float: right;
+            margin-bottom: 20px;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background-color: #7b0f19;
+        }
+
+        #result {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #result img {
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        progress {
+            width: 100%;
+            height: 20px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        progress::-webkit-progress-bar {
+            background-color: #f4f4f4;
+        }
+
+        progress::-webkit-progress-value {
+            background-color: #007bff;
+        }
+
+        progress::-moz-progress-bar {
+            background-color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+
+
+        <form id="id-form" method="POST" action="{% url 'scan_qr_by_id' %}">
+            {% csrf_token %}
+            <input type="text" id="manual-id" name="item_id" placeholder="Enter ID" />
+            <button type="submit">Check by ID</button>
+        </form>
+
+        <div id="result"></div>
+
+        <form id="attendance-form" style="display:none;" method="POST" action="{% url 'attendance' %}">
+            {% csrf_token %}
+            <input type="hidden" id="attendance_data" name="attendance_data" value="">
+            <select id="attendance_status" name="attendance_status">
+                <option value="حضور">حضور</option>
+                <option value="انصراف">انصراف</option>
+            </select>
+            <button type="submit" id="attendance-btn">تسجيل</button>
+        </form>
+    </div>
+
+    <script>
+        const idForm = document.getElementById('id-form');
+        const resultDiv = document.getElementById('result');
+        const attendanceForm = document.getElementById('attendance-form');
+        const attendanceDataInput = document.getElementById('attendance_data');
+
+        idForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const manualId = document.getElementById('manual-id').value;
+
+            fetch(idForm.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: new URLSearchParams({ item_id: manualId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    resultDiv.innerHTML = `<p style="color: #007bff;">Error: ${data.error}</p>`;
+                } else {
+                    displayResult(data);
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = '<p style="color: red;">Error retrieving data by ID</p>';
+                console.error('Error:', error);
+            });
+        });
+
+        function displayResult(data) {
+            const subscriptionStartDate = new Date(data.subscription_start_date);
+            const subscriptionEndDate = new Date(data.subscription_end_date);
+            const today = new Date();
+            const remainingDays = Math.ceil((subscriptionEndDate - today) / (1000 * 60 * 60 * 24));
+            const totalDays = Math.ceil((subscriptionEndDate - subscriptionStartDate) / (1000 * 60 * 60 * 24));
+            const percentageRemaining = Math.max(0, (remainingDays / totalDays) * 100);
+            const table = `
+                <p><strong>الكود:</strong> ${data.id}</p>
+                <p><strong>الاسم:</strong> ${data.name}</p>
+                <p><strong>الجامعه:</strong> ${data.category}</p>
+                <p>متبقي <strong>${data.remaining_rides}</strong> رحلة من أصل <strong>${data.total_rides}</strong> رحلة</p>
+                <progress value="${percentageRemaining}" max="100"></progress>
+
+                    <p>اسم الراكب: ${data.name}</p>
+                    <p>الكود الجامعي: ${data.university_code}</p>
+                    <p>اسم الرحلة: ${data.trip_name}</p>
+                    <p>تاريخ الرحلة: ${data.date}</p>
+                    <p>الحالة: ${data.status}</p>
+                    <p>نوع الرحلة: ${data.trip_type}</p>
+                    <p>المقاعد المحجوزة: ${data.reserved_seats}</p>
+                    <p>طريقة الدفع: ${data.payment_method}</p>`;
+
+            resultDiv.innerHTML = table;
+
+            attendanceForm.style.display = 'block';
+            attendanceDataInput.value = JSON.stringify(data);
+        }
+    </script>
+</body>
+</html>

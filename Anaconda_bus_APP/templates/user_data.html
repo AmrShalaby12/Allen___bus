@@ -1,0 +1,117 @@
+
+{% load base64_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>user_data</title>   
+
+</head>
+<body>
+     {% comment %} {% include 'navigation.html' %} {% endcomment %}
+
+{% for item in items %}
+    <div class="col-12 col-sm-8 col-md-6 col-lg-4 mb-4">
+        <div class="card p-4 shadow-lg h-100" style="background-color: #343a40;">
+            <div class="text-center mb-4">
+                <h5 class="card-title text-center mb-4">مرحبًا {{ item.name }}</h5>
+
+            </div>
+            <div class="card-body">
+                <div class="bg-light p-2 rounded mb-2">
+                    <span class="fw-bold text-primary">كود الطالب:</span>
+                    <strong>{{ item.id }}</strong>
+                </div>
+                <div class="bg-light p-2 rounded mb-2">
+                    <span class="fw-bold text-success">الجامعة:</span>
+                    <strong>{{ item.category.name }}</strong>
+                </div>
+                <div class="bg-light p-2 rounded mb-2">
+                    <span class="fw-bold text-info">كود الجامعة:</span>
+                    <strong>{{ item.university_code }}</strong>
+                </div>
+{% comment %} <div class="bg-light p-2 rounded mb-2">
+    <span class="fw-bold text-warning">الرحلات المتبقية من الاشتراك:</span>
+    <strong>{{ item.remaining_rides }}</strong>
+</div> {% endcomment %}
+<div class="bg-light p-2 rounded mb-2">
+    <span class="fw-bold text-warning">عدد الرحلات المستخدمة:</span>
+    <strong>{{ item.rides_used }}</strong>
+</div>
+
+
+                <div class="bg-light p-2 rounded mb-2">
+                    <span class="fw-bold text-secondary">تاريخ بداية آخر اشتراك:</span>
+                    <strong>{{ item.subscription_start_date }}</strong>
+                </div>
+                <div class="bg-light p-2 rounded">
+                    <span class="fw-bold text-danger">تاريخ نهاية آخر اشتراك:</span>
+                    <strong>{{ item.subscription_end_date }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+{% empty %}
+    <p class="text-center">لا توجد بيانات لهذا المستخدم.</p>
+{% endfor %}
+<style>
+    strong{
+        display: block;
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Cairo', sans-serif;
+        text-align: center;
+    }
+    span{
+        
+        background-color: #9b4391 !important;;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        color: #fff;
+        display: block;
+        font-size: 20px !important;
+        text-align: center;
+        
+    }
+    h5{
+        font-size: 30px;
+        padding-top: 20px;
+    }
+    h2 {
+        color: #343a40;
+    }
+
+    .card {
+        border-radius: 15px;
+        background-color: #fff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 8px 20px rgba(94, 94, 94, 0.1);
+    }
+    .card-title {
+        font-weight: bold;
+        color: #9b4391  ;
+    }
+    .img-thumbnail {
+        border: 2px solid #9b4391;
+        margin-bottom: 30px !important;
+
+    }
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+    @media (max-width: 768px) {
+        .card {
+            margin-bottom: 20px;
+        }
+    }
+    
+</style>
+</body>
+</html>
