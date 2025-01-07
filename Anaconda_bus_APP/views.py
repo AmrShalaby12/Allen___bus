@@ -470,23 +470,41 @@ def booking_list(request):
 def my_buses(request):
     # جلب جميع الباصات المرتبطة بالمستخدم
     buses = Bus.objects.filter(Bus_driver=request.user)
-    # تصفية الرحلات الخاصة بالباصات والتي تكون بتاريخ اليوم
     today = localdate()  # الحصول على تاريخ اليوم
-    schedules = Trip.objects.filter(bus__in=buses, date=today, is_active=True)  # الرحلات بتاريخ اليوم والنشطة فقط
-    
-    # تجميع الركاب حسب الخطوط
-    bookings_by_route = {}
-    for schedule in schedules:
-        route = schedule.route  # اسم الخط
-        bookings = schedule.bookings.all()  # جميع الحجوزات المرتبطة بالرحلة
-        if route not in bookings_by_route:
-            bookings_by_route[route] = []
-        bookings_by_route[route].extend(bookings)
-    
+
+    # إعداد البيانات لكل باص
+    buses_data = []
+    for bus in buses:
+        # جلب الرحلات النشطة المرتبطة بهذا الباص
+        schedules = Trip.objects.filter(bus=bus, is_active=True)
+
+        # تجميع الحجوزات حسب الخطوط والمناطق لكل باص
+        bookings_by_route_and_area = {}
+        for schedule in schedules:
+            route = schedule.route  # اسم الخط الكامل
+            areas = [area.strip() for area in route.split('\n')]  # تقسيم الخط إلى مناطق
+            for area in areas:
+                if area not in bookings_by_route_and_area:
+                    bookings_by_route_and_area[area] = []
+                bookings = schedule.bookings.filter(selected_route=area)
+
+                # إضافة عدد الحجوزات المكتملة لهذا اليوم لكل حجز
+                for booking in bookings:
+                    booking.completed_bookings_today = booking.passenger.bookings.filter(
+                        booking_date__date=today,
+                        status='completed'
+                    ).count()
+
+                bookings_by_route_and_area[area].extend(bookings)
+
+        # إضافة البيانات الخاصة بالباص إلى القائمة
+        buses_data.append({
+            'bus': bus,
+            'bookings_by_route_and_area': bookings_by_route_and_area,
+        })
+
     return render(request, 'my_buses.html', {
-        'buses': buses,
-        'schedules': schedules,
-        'bookings_by_route': bookings_by_route,  # الحجوزات مرتبة حسب الخطوط
+        'buses_data': buses_data,  # البيانات المرتبة حسب الباص
     })
 
 def update_bus_location(request, bus_id):
@@ -902,19 +920,73 @@ def bus_report_view(request):
     }
     return render(request, 'admin/bus_report.html', context)
 
-def my_trips(request):
-    # جميع الباصات المرتبطة بالمستخدم الحالي
-    buses = Bus.objects.filter(user=request.user)
 
-    # جميع الرحلات المرتبطة بالباصات
-    schedules = Trip.objects.filter(bus__in=buses)
+def mark_attendance_university_code(request):
+    if request.method == 'POST':
+        university_code = request.POST.get('university_code', None)  # كود الجامعة
+        serial_code = request.POST.get('serial_code', None)  # كود الحجز (serial_code)
 
-    # جلب جميع الحجوزات المرتبطة بالرحلات
-    bookings = Booking.objects.select_related('passenger').filter(Trip__in=schedules)
+        if university_code and serial_code:
+            # البحث عن الطالب باستخدام كود الجامعة
+            student = passenger.objects.filter(university_code=university_code).first()
+            if student:
+                # البحث عن الحجز باستخدام serial_code
+                booking = Booking.objects.filter(
+                    passenger=student,
+                    serial_code=serial_code,  # الحجز بناءً على كود الحجز الفريد
+                    attendance_status="absent"  # الحجوزات التي لم يتم تسجيل حضورها
+                ).first()
 
-    context = {
-        'buses': buses,
-        'schedules': schedules,
-        'bookings': bookings,
-    }
-    return render(request, 'your_template.html', context)
+                if booking:
+                    # تسجيل الحضور للحجز
+                    booking.attendance_status = "present"
+                    booking.status = "active"
+                    booking.save()
+
+                    # تحديث بيانات الطالب
+                    if student.remaining_rides > 0:
+                        student.rides_used += 1
+                        student.save()
+
+                    messages.success(request, f"تم تسجيل الحضور بنجاح للرحلة بكود الحجز: {serial_code}")
+                else:
+                    messages.info(request, "لا يوجد حجز مرتبط بكود الرحلة المدخل أو الحجز مسجل حضور مسبقًا.")
+            else:
+                messages.error(request, "كود الجامعة غير صحيح.")
+        else:
+            messages.error(request, "يرجى إدخال كود الجامعة وكود الحجز.")
+
+    return render(request, 'check_university_code.html')
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+import json
+
+def update_payment_status(request, booking_id):
+    if request.method == "POST":
+        try:
+            if request.headers.get('Content-Type') == 'application/json':
+                # معالجة البيانات كـ JSON
+                data = json.loads(request.body)
+                status = data.get('status')
+            else:
+                # معالجة البيانات كـ Form Data
+                status = request.POST.get('status')
+
+            if not status or status not in ['completed', 'prepaid']:
+                return JsonResponse({"success": False, "error": "حالة غير صالحة."})
+
+            booking = get_object_or_404(Booking, id=booking_id)
+            booking.status = status
+            booking.save()
+
+            return JsonResponse({"success": True, "message": f"تم تحديث حالة الدفع إلى {status}"})
+
+        except Booking.DoesNotExist:
+            return JsonResponse({"success": False, "error": "الحجز غير موجود."})
+
+    return JsonResponse({"success": False, "error": "طلب غير صالح."})

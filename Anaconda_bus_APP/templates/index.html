@@ -1,6 +1,7 @@
 
-    {% include 'navigation.html' %}
+{% extends 'base.html' %}
 
+{% block content %}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -10,13 +11,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
 </head>
 <body>
+    <div id="preloader">
+        <div class="spinner"></div>
 
+    </div>
+    
     <div class="container my-4 search-section">
         <form method="GET" action="{% url 'index' %}" class="row g-3 p-4 shadow-sm rounded bg-light">
             <h3 class="text-center mb-4 ">البحث عن الرحلات</h3>
             <div class="col-md-4">
                 <label for="university" class="form-label">الجامعة</label>
-                <select name="category" id="university" class="form-select">
+                <select name="Category" id="university" class="form-select">
                     <option value="">كل الجامعات</option>
                     {% for university in all_universities %}
                         <option value="{{ university.id }}" {% if selected_category == university.id|stringformat:"s" %}selected{% endif %}>
@@ -85,47 +90,45 @@
 
     <div class="container my-4">
         {% if schedules %}
-            <h4 class="text-center text-primary" style="    color: #9b4391 !important;
-    border: none !important;">الرحلات المتوفرة</h4>
+            <h4 class="text-center" style="color: #290c38;">الرحلات المتوفرة</h4>
             <div class="row">
                 {% for schedule in schedules %}
-                    <div class="col-md-4">
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-body">
-                                <h5 class="card-title text-center"style="    color: #9b4391 !important;
-                                border: none !important;">{{ schedule.trip_name }}</h5>
-                                <p><strong>الطريق:</strong> {{ schedule.route }}</p>
-                                <p><strong>نوع الرحلة:</strong> {{ schedule.get_trip_type_display }}</p>
-                                <p><strong>التاريخ:</strong> {{ schedule.date }}</p>
-                                <p><strong>وقت الوصول للواجهه:</strong> {{ schedule.start_time }}</p>
-                                <p><strong>السائق:</strong> {{ schedule.bus.name }}</p>
-                                <p><strong>رقم السائق:</strong> {{ schedule.bus.driver_number }}</p>
-                                <p><strong>السعر:</strong> {{ schedule.round_trip_price }} جنيه</p>
-                                <p><strong>المقاعد المتاحة:</strong> {{ schedule.bus.available_seats }}</p>
-                                {% if schedule.bus.location_url %}
-                                <p>
-                                    <strong>موقع الباص:</strong>
-                                    <p>يتم تحديث الموقع كل 20 ثانيه</p>
-                                    <a href="{% url 'show_bus_location' schedule.bus.id %}" target="_blank" class="text-primary">عرض الموقع</a>
-                                </p>
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card trip-card shadow-sm">
+                        <div class="card-body">
+                            <h5 style="color: #501e5b;" class="card-title text-center   ">{{ schedule.trip_name }}</h5>
+                            <p><strong>الطريق:</strong> {{ schedule.route }}</p>
+                            <p><strong>نوع الرحلة:</strong> {{ schedule.get_trip_type_display }}</p>
+                            <p><strong>التاريخ:</strong> {{ schedule.date }}</p>
+                            <p><strong>وقت الوصول للواجهة:</strong> {{ schedule.start_time }}</p>
+                            <p><strong>السائق:</strong> {{ schedule.bus.name }}</p>
+                            <p><strong>رقم السائق:</strong> {{ schedule.bus.driver_number }}</p>
+                            <p><strong>السعر:</strong> {{ schedule.round_trip_price }} جنيه</p>
+                            <p><strong>المقاعد المتاحة:</strong> {{ schedule.bus.available_seats }}</p>
+    
+                            {% if schedule.bus.location_url %}
+                            <p>
+                                <strong>موقع الباص:</strong>
+                                <p>يتم تحديث الموقع كل 20 ثانية</p>
+                                <a href="{% url 'show_bus_location' schedule.bus.id %}" target="_blank" class="text-primary">عرض الموقع</a>
+                            </p>
                             {% else %}
-                                <p>لا يوجد موقع متاح لهذه الحافلة.</p>
+                            <p>لا يوجد موقع متاح لهذه الحافلة.</p>
                             {% endif %}
                             
-                            
-                                <div class="d-grid">
-                                    <a href="{% url 'book_seat' schedule.id %}" class="btn btn-primary" style="    background-color: #9b4391 !important;
-    border: none !important;">حجز</a>
-                                </div>
+                            <div class="d-grid mt-3">
+                                <a href="{% url 'book_seat' schedule.id %}" class="btn btn-primary book-btn">حجز</a>
                             </div>
                         </div>
                     </div>
+                </div>
                 {% endfor %}
             </div>
         {% else %}
             <p class="text-center text-danger">لا توجد رحلات متوفرة بناءً على معايير البحث.</p>
         {% endif %}
     </div>
+    
 <style>
     .search-section {
         background: url('/media/items/background.jpg') no-repeat center center;
@@ -136,7 +139,7 @@
     }
 
 button{
-    background-color: #9b4391 !important;
+    background-color: #290c38 !important;
     border: none !important;
 }
 /* تصميم الفوتر */
@@ -240,33 +243,119 @@ button{
     padding-top: 10px;
 }
 
+
 </style>
-<footer class="footer">
-    <div class="footer-container">
-        <!-- الشعار واسم الشركة -->
-        <div class="footer-brand">
-            <img src="/media/items/logo.png" alt="Company Logo" class="footer-logo">
-            <h3>Allen Travel</h3>
-            <p>دلوقتي Allen Travel بتقدملك توصيلة  بأسعار مميزة ده غير أننا بنقدملك خدمة على أعلى مستوى طول السفرية عشان توصل وأنت مرتاح..</p>
-        </div>
+<style>
+    /* تحسين تصميم الكارد */
+    .trip-card {
+        border-radius: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+        position: relative;
+        text-align:right !important;
+    }
+    
+    .trip-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* تصميم عنوان الكارد */
+    .trip-card .card-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #290c38;
+        margin-bottom: 1rem;
+    }
+    
+    /* زر الحجز */
+    .book-btn {
+        background-color: #290c38 !important;
+        border: none;
+        color: #fff;
+        transition: background-color 0.3s ease;
+    }
+    
+    .book-btn:hover {
+        background-color: #501e5b !important    ;
+        color: #fff;
+    }
+    
+    /* أنيميشن للظهور التدريجي */
+    .trip-card {
+        animation: fadeInUp 0.5s ease forwards;
+        opacity: 0;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    /* تغطية الصفحة بالكامل */
+/* تغطية الصفحة بالكامل */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #fff; /* لون الخلفية */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
 
-        <!-- روابط التنقل -->
-        <div class="footer-links">
-            <h4>روابط سريعة</h4>
-            <ul>
-                <li><a href="https://www.facebook.com/AllenTravelco?mibextid=wwXIfr&rdid=QqKMxKRqIt0i5Wsn#">من نحن</a></li>
-                <li><a href="https://api.whatsapp.com/send?phone=%2B201000724672&context=ARB4SAQZ5mirV4UlbFZObfmcokoY9r3S6raok5f7m5jy1dzdVMu7J6xJQTqE54jxwEhoGDIlz-Z8D5Tz3uOilp0dAAY1ynS9loEP9NPy4VqCmArsbCeQnUTBBwkWu_nU2YaU6L2TK6dqI6BXdj3EP5BZpw&source=FB_Page&app=facebook&entry_point=page_cta&fbclid=IwZXh0bgNhZW0CMTAAAR2JZI_Is0q4KgP4lUCKW7webX0f8XHpCl29Wle_WNa6hRnCGtsfs8ehW7M_aem_nMBNDxT9aua48BjppIig3Q">تواصل معنا</a></li>
-            </ul>
-        </div>
+/* تصميم الدائرة الدوارة */
+.spinner {
+    width: 100px;
+    height: 100px;
+    border: 5px solid #f3f3f3; /* لون الخلفية للدائرة */
+    border-top: 5px solid #9b4391; /* لون الجزء المتحرك */
+    border-radius: 50%;
+    animation: spin 1s linear infinite; /* تأثير الدوران */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
 
+/* تصميم الشعار */
+.spinner .logo {
+    width: 50px; /* حجم الشعار */
+    height: auto;
+    position: absolute; /* ثابت داخل الدائرة */
+    z-index: 2;
+    animation: none; /* الشعار لا يدور */
+}
 
-    </div>
+/* تأثير الدوران */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
 
-    <!-- حقوق الطبع والنشر -->
-    <div class="footer-bottom">
-        <p>© All rights reserved 2024 <a href="https://n0xus0.github.io/noxous_team/" style="text-decoration: none; color:#9b4391;">NOXUS_Team </a> ANACODNDA_BUS_PROJECT.</p>
-    </div>
-</footer>
+    </style>
+    <script>
+        window.onload = function () {
+            const preloader = document.getElementById('preloader');
+            preloader.style.opacity = '0';
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 500);
+        };
+    </script>
+    
 <script>
     // تحديث واجهة المستخدم للرحلات
 function updateTrips() {
@@ -296,3 +385,4 @@ function updateTrips() {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+{% endblock %}

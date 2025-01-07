@@ -1,4 +1,8 @@
+{% extends 'base.html' %}
 
+{% block title %}عنوان الصفحة{% endblock %}
+
+{% block content %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -22,7 +26,6 @@
             }
         
         button{
-            background-color: #9b4391 !important;
             border: none !important;
         }
         /* تصميم الفوتر */
@@ -139,7 +142,7 @@
     {% if error %}
         <p>{{ error }}</p>
     {% else %}
-        <div class="map-container">
+        <div class="map-container" style="margin-bottom: 50px;">
             <iframe
                 width="100%"
                 height="400"
@@ -179,34 +182,9 @@ const updateMap = () => {
 setInterval(updateMap, 20000);
 
 </script>
-<footer class="footer">
-    <div class="footer-container">
-        <!-- الشعار واسم الشركة -->
-        <div class="footer-brand">
-            <img src="/media/items/logo.png" alt="Company Logo" class="footer-logo">
-            <h3>Allen Travel</h3>
-            <p>دلوقتي Allen Travel بتقدملك توصيلة  بأسعار مميزة ده غير أننا بنقدملك خدمة على أعلى مستوى طول السفرية عشان توصل وأنت مرتاح..</p>
-        </div>
-
-        <!-- روابط التنقل -->
-        <div class="footer-links">
-            <h4>روابط سريعة</h4>
-            <ul>
-                <li><a href="https://www.facebook.com/AllenTravelco?mibextid=wwXIfr&rdid=QqKMxKRqIt0i5Wsn#">من نحن</a></li>
-                <li><a href="https://api.whatsapp.com/send?phone=%2B201000724672&context=ARB4SAQZ5mirV4UlbFZObfmcokoY9r3S6raok5f7m5jy1dzdVMu7J6xJQTqE54jxwEhoGDIlz-Z8D5Tz3uOilp0dAAY1ynS9loEP9NPy4VqCmArsbCeQnUTBBwkWu_nU2YaU6L2TK6dqI6BXdj3EP5BZpw&source=FB_Page&app=facebook&entry_point=page_cta&fbclid=IwZXh0bgNhZW0CMTAAAR2JZI_Is0q4KgP4lUCKW7webX0f8XHpCl29Wle_WNa6hRnCGtsfs8ehW7M_aem_nMBNDxT9aua48BjppIig3Q">تواصل معنا</a></li>
-            </ul>
-        </div>
-
-
-    </div>
-
-    <!-- حقوق الطبع والنشر -->
-    <div class="footer-bottom">
-        <p>© All rights reserved 2024 <a href="https://n0xus0.github.io/noxous_team/" style="text-decoration: none; color:#9b4391;">NOXUS_Team </a> ANACODNDA_BUS_PROJECT.</p>
-    </div>
-</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
+{% endblock %}

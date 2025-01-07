@@ -264,6 +264,7 @@ class Booking(models.Model):
     PAYMENT_METHODS = [
         ('cash', 'Cash'),
         ('online', 'Online'),
+        ('subscription' , 'subscription')
     ]  
     TRIP_TYPE_CHOICES = [
         ('one_way', 'ذهاب فقط'),

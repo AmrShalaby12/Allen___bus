@@ -1,3 +1,6 @@
+{% extends 'base.html' %}
+{% block content %}
+
 
 {% load base64_filters %}
 <!DOCTYPE html>
@@ -5,113 +8,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>user_data</title>   
-
+    <title>User Data</title>
+    <!-- إضافة مكتبة Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+        }
+        .card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+        }
+        .card-title {
+            font-weight: bold;
+            color: #9b4391;
+            margin-bottom: 20px;
+        }
+        .card-body span {
+            display: block;
+            font-size: 18px;
+            color: #fff;
+            background-color: #290c38;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+        .card-body strong {
+            display: block;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        h5, h2 {
+            font-weight: bold;
+        }
+        .text-muted {
+            color: #6c757d !important;
+        }
+    </style>
 </head>
 <body>
-     {% comment %} {% include 'navigation.html' %} {% endcomment %}
 
-{% for item in items %}
-    <div class="col-12 col-sm-8 col-md-6 col-lg-4 mb-4">
-        <div class="card p-4 shadow-lg h-100" style="background-color: #343a40;">
-            <div class="text-center mb-4">
-                <h5 class="card-title text-center mb-4">مرحبًا {{ item.name }}</h5>
-
-            </div>
-            <div class="card-body">
-                <div class="bg-light p-2 rounded mb-2">
-                    <span class="fw-bold text-primary">كود الطالب:</span>
+<div class="container py-5">
+    <div class="row g-4">
+        {% for item in items %}
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-header text-center bg-dark text-white">
+                    <h5>مرحبًا {{ item.name }}</h5>
+                </div>
+                <div class="card-body">
+                    <span>كود الراكب</span>
                     <strong>{{ item.id }}</strong>
-                </div>
-                <div class="bg-light p-2 rounded mb-2">
-                    <span class="fw-bold text-success">الجامعة:</span>
+
+                    <span>الجامعة</span>
                     <strong>{{ item.category.name }}</strong>
-                </div>
-                <div class="bg-light p-2 rounded mb-2">
-                    <span class="fw-bold text-info">كود الجامعة:</span>
+
+                    <span>كود الجامعة</span>
                     <strong>{{ item.university_code }}</strong>
-                </div>
-{% comment %} <div class="bg-light p-2 rounded mb-2">
-    <span class="fw-bold text-warning">الرحلات المتبقية من الاشتراك:</span>
-    <strong>{{ item.remaining_rides }}</strong>
-</div> {% endcomment %}
-<div class="bg-light p-2 rounded mb-2">
-    <span class="fw-bold text-warning">عدد الرحلات المستخدمة:</span>
-    <strong>{{ item.rides_used }}</strong>
-</div>
 
+                    <span>عدد الرحلات المستخدمة</span>
+                    <strong>{{ item.rides_used }}</strong>
 
-                <div class="bg-light p-2 rounded mb-2">
-                    <span class="fw-bold text-secondary">تاريخ بداية آخر اشتراك:</span>
+                    <span>تاريخ بداية آخر اشتراك</span>
                     <strong>{{ item.subscription_start_date }}</strong>
-                </div>
-                <div class="bg-light p-2 rounded">
-                    <span class="fw-bold text-danger">تاريخ نهاية آخر اشتراك:</span>
+
+                    <span>تاريخ نهاية آخر اشتراك</span>
                     <strong>{{ item.subscription_end_date }}</strong>
                 </div>
             </div>
         </div>
+        {% empty %}
+        <p class="text-center text-muted">لا توجد بيانات لهذا المستخدم.</p>
+        {% endfor %}
     </div>
-{% empty %}
-    <p class="text-center">لا توجد بيانات لهذا المستخدم.</p>
-{% endfor %}
-<style>
-    strong{
-        display: block;
-        padding-top: 20px;
-        padding-bottom: 20px;
-    }
-    body {
-        background-color: #f8f9fa;
-        font-family: 'Cairo', sans-serif;
-        text-align: center;
-    }
-    span{
-        
-        background-color: #9b4391 !important;;
-        padding-top: 20px;
-        padding-bottom: 20px;
-        color: #fff;
-        display: block;
-        font-size: 20px !important;
-        text-align: center;
-        
-    }
-    h5{
-        font-size: 30px;
-        padding-top: 20px;
-    }
-    h2 {
-        color: #343a40;
-    }
+</div>
 
-    .card {
-        border-radius: 15px;
-        background-color: #fff;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 8px 20px rgba(94, 94, 94, 0.1);
-    }
-    .card-title {
-        font-weight: bold;
-        color: #9b4391  ;
-    }
-    .img-thumbnail {
-        border: 2px solid #9b4391;
-        margin-bottom: 30px !important;
-
-    }
-    .bg-light {
-        background-color: #f8f9fa !important;
-    }
-    @media (max-width: 768px) {
-        .card {
-            margin-bottom: 20px;
-        }
-    }
-    
-</style>
+<!-- إضافة مكتبة Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+{% endblock %}

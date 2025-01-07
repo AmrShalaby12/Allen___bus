@@ -173,7 +173,6 @@ from datetime import timedelta
 
 from datetime import timedelta
 from .models import Booking, Seat, Trip
-
 def renew_trips_by_days(modeladmin, request, queryset, days_to_add):
     """
     إجراء عام لتجديد الرحلات بناءً على عدد الأيام المضاف.
@@ -192,7 +191,7 @@ def renew_trips_by_days(modeladmin, request, queryset, days_to_add):
         trip.save()
 
         # إنشاء نسخة جديدة للرحلة مع التاريخ الجديد
-        Trip.objects.create(
+        new_trip = Trip.objects.create(
             trip_name=trip.trip_name,
             route=trip.route,
             date=trip.date + timedelta(days=days_to_add),
@@ -201,6 +200,13 @@ def renew_trips_by_days(modeladmin, request, queryset, days_to_add):
             is_active=True,  # الرحلة الجديدة تصبح نشطة
             is_old=False,    # الرحلة الجديدة ليست قديمة
         )
+
+        # تفريغ بيانات الحافلة
+        bus = trip.bus
+        bus.location_url = None
+        bus.latitude = None
+        bus.longitude = None
+        bus.save()
 
     # رسالة نجاح
     modeladmin.message_user(
@@ -276,15 +282,15 @@ from .models import Booking
 class BookingAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'user', 'Trip', 'get_selected_route', 'reserved_seats_list',
-        'reserved_seats_count', 'payment_method', 'transaction_number', 
-        'mobile_number', 'passenger_phone', 'status', 
+        'reserved_seats_count', 'payment_method', 'transaction_number'
+        , 'passenger_phone', 'status', 
         'attendance_status', 'serial_code', 
     )
     search_fields = (
-        'transaction_number', 'mobile_number', 'user__username', 
-        'schedule__bus__bus_number', 'attendance_status'
+        'transaction_number', 'user__username'
+        , 'attendance_status'
     )
-    list_filter = ('Trip','selected_route','payment_method', 'status', 'attendance_status')
+    list_filter = ('selected_route','payment_method', 'status', 'attendance_status')
     fields = (
         'user', 'Trip', 'seats_reserved', 'payment_method', 
         'transaction_number', 'mobile_number', 'transaction_image', 
